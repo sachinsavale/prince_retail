@@ -1,0 +1,24 @@
+<project info="SuiteCloud IDE generated file, do not edit." setAttributesOnUpdate="false">
+  <folder name="Softype Prince Script 1.0" bundleable="false">
+    <file name="Softype_PRG_CS_BillPayment.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="Softype_PRG_CS_CreateInvoice.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="Softype_PRG_SS_CreateInventoryAdjustment.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="Softype_PRG_SS_OpeningBalance_InvAdj.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="Softype_PRG_SS_ProcessTransferOrder.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="Softype_PRG_ST_BillPayment.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="Softype_PRG_ST_CreateInvoice.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="Softype_PRG_ST_GetCustomer.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="Softype_PRG_ST_PrintBillPayment.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="Softype_PRG_ST_VendorBill.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="Softype_PRG_ST_VendorCredit.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="Softype_PRG_UE_CheckPrintUpload.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="Softype_PRG_UE_INV_ADJ_Custom.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="Softype_PRG_UE_ON_UOM.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="Softype_PRG_UE_PrintBillPayment.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="Softype_PRG_UE_UpdateSubsidiaryOnVendor.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="Softype_PRG_UE_vendorBill.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="Softype_PRG_UE_vendorCredit.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="Softype_PRG_WA_CreateVendorCredit.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+    <file name="Softype_PRG_jquery.min.1.9.1.js" bundleable="false" hideInBundle="false" isOnline="false" textFileEncoding="_utf8"/>
+  </folder>
+</project>
