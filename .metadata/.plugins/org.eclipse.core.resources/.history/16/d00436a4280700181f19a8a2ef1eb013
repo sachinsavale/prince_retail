@@ -1,0 +1,24 @@
+
+
+function printPdf(request, response){
+	
+	var action = request.getParameter('action');
+	
+	if(action == 'transferorder'){
+		
+		var transferOrder = nlapiLoadRecord(nlapiGetRecordType(), transferOrderId);
+		var renderer = nlapiCreateTemplateRenderer();
+		renderer.setTemplate('');
+		renderer.addRecord('record',transferOrder);
+				
+		response.setContentType('PDF');
+		renderer.renderToResponse(response);
+		return;
+		
+		
+	}
+	
+	
+	
+	
+}

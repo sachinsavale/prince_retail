@@ -1,0 +1,12 @@
+/**
+ * @NApiVersion 2.x
+ * @NScriptType Suitelet
+ * @NModuleScope SameAccount
+ */
+
+function printPdf(request, response){
+	
+	
+	
+	
+}

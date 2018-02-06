@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;/Prince SCRIPT 1.0 SANDBOX/Softype_PRG_UE_Print_TransferOrder.js&apos; to &apos;Softype_PRG_UE_Print.js&apos;&#x0D;&#x0A;- Original project: &apos;Prince SCRIPT 1.0 SANDBOX&apos;&#x0D;&#x0A;- Original element: &apos;Softype_PRG_UE_Print_TransferOrder.js&apos;" description="Rename resource &apos;Softype_PRG_UE_Print_TransferOrder.js&apos;" flags="7" id="org.eclipse.wst.jsdt.ui.rename.resource" input="Softype_PRG_UE_Print_TransferOrder.js" name="Softype_PRG_UE_Print.js" stamp="1517472146886" version="1.0"/>
+</session>
