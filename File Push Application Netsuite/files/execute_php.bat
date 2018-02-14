@@ -1,0 +1,1 @@
+C:\Program Files\PHP\v7.0\php-cgi.exe -f C:\inetpub\wwwroot\test1.php
