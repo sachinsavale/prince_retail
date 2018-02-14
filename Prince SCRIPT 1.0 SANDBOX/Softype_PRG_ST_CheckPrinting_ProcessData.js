@@ -118,19 +118,22 @@ function suiteletProcessData(request, response){
 				
 				if(invno > 15)
 					{
-					 invoice_Number = invoiceLength(invoiceno);
+					 	invoice_Number = invoiceno.substring(0,15);
 					
 					}
 				else
 					{
-					invoice_Number=invoiceno;
+						invoice_Number=invoiceno;
 					
 					}
 				var getinvoicedate = savesearch[i].getValue('trandate');
 				getinvoicedate = getinvoicedate.split('/');
-				var month = getinvoicedate[0];
+				var date = new Date();
+				var month =  getinvoicedate[0];
 				var date = getinvoicedate[1];
 				var year = getinvoicedate[2];
+				
+				
 				month = month.toString();
 				date = date.toString();
 				if(month.length == 1){

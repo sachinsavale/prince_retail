@@ -17,23 +17,23 @@ var SuiteletPageName = "Create Invoice From Inventory Adjustment"
 
 function CreateInvoiceFromInvAdjustment(request, response){
 	
-	nlapiLogExecution('debug','SSSSSSSSSSSSSSSSS');
+	//nlapiLogExecution('debug','SSSSSSSSSSSSSSSSS');
 
 	if (request.getMethod() == 'GET')
 	{
 
 		var action = request.getParameter('action');
-		nlapiLogExecution('DEBUG', 'action', action);
+	//	nlapiLogExecution('DEBUG', 'action', action);
 		var getDate = request.getParameter('date');
 		var sub = request.getParameter('subsid');
 		 var context = nlapiGetContext();
         var currentUserId = context.getUser();
         var subsidiaryFilter = nlapiLookupField('employee',currentUserId,'subsidiary');
 		var isLocation = request.getParameter('isLocation');
-		nlapiLogExecution('Debug','isLocation',isLocation);
+	//	nlapiLogExecution('Debug','isLocation',isLocation);
 
 		var locationId = request.getParameter('locationId');
-		nlapiLogExecution('Debug','locationId',locationId);
+	//	nlapiLogExecution('Debug','locationId',locationId);
 
 		var jqueryLib;
 
@@ -61,7 +61,7 @@ function CreateInvoiceFromInvAdjustment(request, response){
 
 		if(SearchRecord){
 
-			nlapiLogExecution('Debug','SearchRecord',SearchRecord.length);
+			//nlapiLogExecution('Debug','SearchRecord',SearchRecord.length);
 
 			for(var i=0;i<SearchRecord.length;i++)
 			{
@@ -73,7 +73,7 @@ function CreateInvoiceFromInvAdjustment(request, response){
 		if(action == 'getInvoice')
 		{
 
-			nlapiLogExecution('DEBUG', 'sub of client', sub);
+			//nlapiLogExecution('DEBUG', 'sub of client', sub);
 			var getDate = request.getParameter('date');
 			
 			nlapiLogExecution('emergency','date',getDate);
@@ -282,13 +282,14 @@ function CreateInvoiceFromInvAdjustment(request, response){
 					var invoiceId = invoiceSearch[0].id;
 					nlapiLogExecution('debug','Invoice Id Alredy Saved',invoiceId);
 					var loadInvoiceObj = nlapiLoadRecord('invoice',invoiceId);
+					//loadInvoiceObj.setFieldValue('customform',100)
 					var isInventory = loadInvoiceObj.getFieldValues('custbody_relatedvendorcr_ck');
 					if(isInventory){
 						
 						return;
 						
 					}
-					loadInvoiceObj.setFieldValues('custbody_relatedvendorcr_ck',inventoryAdjIds)
+					
 					for(var line = 0; line < lineitems.length; line++){
 					  
 					  nlapiLogExecution('debug','Load line item count',line);
@@ -305,6 +306,7 @@ function CreateInvoiceFromInvAdjustment(request, response){
 					  
 				  }
 					 nlapiLogExecution('debug','About to update invoice record');
+					 loadInvoiceObj.setFieldValue('custbody_relatedvendorcr_ck',inventoryAdjIds)
 					 var invoiceId = nlapiSubmitRecord(loadInvoiceObj);
 					 /*
 					 if(invoiceId){

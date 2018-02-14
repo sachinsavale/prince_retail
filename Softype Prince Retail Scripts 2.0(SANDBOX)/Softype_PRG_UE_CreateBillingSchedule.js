@@ -50,11 +50,18 @@ function(record,format,runtime,error) {
     		return;
     	}
     	var billStartDate  = new Date(currentRecordObj.getValue('custrecord_billstartdate')); 
+    	
+    	
+    	
+    	
     	var billEndDate = currentRecordObj.getValue('custrecord_billingenddate'); 
+    	
+    	
+    	
     	billEndDate = new Date(billEndDate);
       
     	var lastdateOfTheMonth = new Date(billStartDate.getFullYear(), billStartDate.getMonth() + 1, 0);
-    	currentRecordObj.setValue('custrecord_billingenddate',lastdateOfTheMonth);
+    //	currentRecordObj.setValue('custrecord_billingenddate',lastdateOfTheMonth);
 //    	if(billEndDate != lastdateOfTheMonth){
 //    		
 //    		  var errorObj =  error.create({
@@ -114,6 +121,16 @@ function(record,format,runtime,error) {
     	var billingOccurence = currentRecordObj.getValue('custrecord_billingoccurrence');
     	var parentBillingRef = currentRecordObj.getValue('custrecord_contractref');
     	var billStartDate  = currentRecordObj.getValue('custrecord_billstartdate'); 
+    	var previousDate = new Date(billStartDate);
+    	if(billStartDate.getDate() != 1){
+    		
+    		
+    		previousDate.setDate(previousDate.getDate() - 1);
+    		var getPreviousMonth = previousDate.getMonth() - 1;
+    		previousDate.setMonth(getPreviousMonth);
+    		
+    		
+    	}
     	
     	var lastMonthDate = new Date(billStartDate);
     	var billingLastDate = lastMonthDate.getDate();
@@ -146,6 +163,7 @@ function(record,format,runtime,error) {
 		var year = now.getFullYear();
 		var monthCount = 1; 
 		var LAST_MONTH = 11;
+		var flag = 0;
     	if(billingOccurence > 1){
     		
     		var lastRecord = Number(billingOccurence) - 1;
@@ -156,6 +174,10 @@ function(record,format,runtime,error) {
     			
     			var counter = i;
         	//	var year = now.getFullYear() + counter;
+    			if(monthCount == LAST_MONTH){
+    				
+    					flag = 1;
+    			}
         		if(INCREMENT && monthCount > LAST_MONTH ){
     				
     				var amountPercent = Number((INCREMENT/100)*Number(billingAmount));
@@ -164,7 +186,8 @@ function(record,format,runtime,error) {
     				
     				
     				
-    				 
+    				
+    				
     				
     			}
         		
@@ -203,10 +226,18 @@ function(record,format,runtime,error) {
         			
         		}
         		
-        		log.debug('Last Date 	',monthDate);
+        		log.debug('Last Date',monthDate);
         		createRecord.setValue('custrecord_billstartdate',nextDate);
+        		if(flag == 1){
+        			
+        			createRecord.setValue('custrecord_billingenddate',previousDate);
+        			
+        			
+        		}else{
+        			
+        			createRecord.setValue('custrecord_billingenddate',monthDate);
+        		}
         		
-        		createRecord.setValue('custrecord_billingenddate',monthDate);
         		createRecord.setValue('custrecord_billingitem',billingItem);
         		createRecord.setValue('custrecord_billamount',billingAmount);
         		//createRecord.setValue('custrecord_contractref',parentBillingRef);
@@ -214,12 +245,39 @@ function(record,format,runtime,error) {
         		
         		var recordId = createRecord.save();
         		
+        		if(flag == 1){
+        			
+        			var createRecord = record.create({type:'customrecord_contractbillingschedule',isDynamic: true});
+            		createRecord.setValue('custrecord_billingreference',billingRefCount);
+            		createRecord.setValue('custrecord_contractref',parentBillingRef);
+            		createRecord.setValue('custrecord_billingoccurrence',billingOccurence);
+            		
+            		createRecord.setValue('custrecord_billstartdate',nextDate);
+            		createRecord.setValue('custrecord_billingenddate',previousDate);
+            			
+            			
+            		
+            		
+            		createRecord.setValue('custrecord_billingitem',billingItem);
+            		createRecord.setValue('custrecord_billamount',billingAmount);
+            		//createRecord.setValue('custrecord_contractref',parentBillingRef);
+            		//createRecord.setValue('custrecord_contractref',parentBillingRef);
+            		
+            		var recordId = createRecord.save();
+        			
+        			
+        			flag=0;
+        			
+        		}
+        		
         		log.debug('Record ID',recordId);
         		var currentEndDate = new Date(monthDate);
         		nextDate = new Date(currentEndDate.setDate(currentEndDate.getDate()+1));
         		
         		billingRefCount++;
         		monthCount++;
+        		
+        		
         		
         		if(lastRecord == i && billingLastDate > 1){
         			

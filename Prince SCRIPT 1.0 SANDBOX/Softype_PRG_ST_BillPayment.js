@@ -25,6 +25,8 @@ function CreateBillPayment(request, response){
 		var vendorids = new Array();
 		//nlapiLogExecution('Debug','subsidiary ::',subsidiary);
 		var type = request.getParameter('type');
+		var entity = request.getParameter('entitytype');
+		var entityid = request.getParameter('entityid');
 		var folderId = 244;
 		var entityIds = new Array();
 		var isAccount = request.getParameter('isAccount');
@@ -34,14 +36,25 @@ function CreateBillPayment(request, response){
 		
 		//Create the Suitelet Form
 		var form = nlapiCreateForm(SuiteletPageName,false);
-		form.setScript('customscript_prg_cs_checkprinting');
+		form.setScript('customscript_prg_cs_billpayment');
 		form.addButton('custpage_download','Print','onClickDownload()');
 		var fldHtmlHeader = form.addField('custpage_header','inlinehtml','');
 
 		
 		
 		var primaryInfo = form.addFieldGroup('custpage_primaryinfo', 'Primary Information');
-		var recordType = form.addField('custpage_record_type', 'select', 'Record Type', 'type', 'custpage_primaryinfo');
+		var entityType = form.addField('custpage_entity_type', 'select', 'Select Entity', 'type', 'custpage_primaryinfo');
+		
+		entityType.addSelectOption('','');
+		
+		entityType.addSelectOption('1','Vendor');
+		entityType.addSelectOption('2','Employee');
+		if(entityid){
+
+			entityType.setDefaultValue(entityid);
+
+		}
+		var recordType = form.addField('custpage_record_type', 'select', 'Transaction Type', 'type', 'custpage_primaryinfo');
 		
 		recordType.addSelectOption('','');
 		recordType.setDefaultValue(type);
@@ -58,7 +71,7 @@ function CreateBillPayment(request, response){
 		//var Filter = new Array();
 		//Filter.push(new nlobjSearchFilter('isinactive',null,'is','F'));
 		var col=new Array();
-		col.push(new nlobjSearchColumn('subsidiary'));
+		col.push(new nlobjSearchColumn('subsidiary',null,'group'));
 		if(type == '1'){
 			
 			 record = 'check';
@@ -71,22 +84,16 @@ function CreateBillPayment(request, response){
 		var arrSubs = [];
 		if(SearchRecord){
 
-			//nlapiLogExecution('Debug','SearchRecord',SearchRecord.length);
+			nlapiLogExecution('Debug','SearchRecord',SearchRecord.length);
 
 			for(var i=0;i<SearchRecord.length;i++)
 			{
-				var currentSubs = SearchRecord[i].getValue('subsidiary');
-				if(i == 0){
-					subsidiary.addSelectOption(SearchRecord[i].getValue('subsidiary'),SearchRecord[i].getText('subsidiary'));
-					arrSubs.push(currentSubs);
-				}
-				else{
-					if(arrSubs.indexOf(currentSubs) == -1)
-					{
-						subsidiary.addSelectOption(SearchRecord[i].getValue('subsidiary'),SearchRecord[i].getText('subsidiary'));
-						arrSubs.push(currentSubs);
-					}
-				}
+				var currentSubs = SearchRecord[i].getValue('subsidiary',null,'group');
+				
+					subsidiary.addSelectOption(SearchRecord[i].getValue('subsidiary',null,'group'),SearchRecord[i].getText('subsidiary',null,'group'));
+					//arrSubs.push(currentSubs);
+				
+				
 				
 			}
 
@@ -119,6 +126,7 @@ function CreateBillPayment(request, response){
 			column.push(new nlobjSearchColumn('account'));
 			column.push(new nlobjSearchColumn('trandate'));
 			column.push(new nlobjSearchColumn('entity'));
+			column.push(new nlobjSearchColumn('internalid').setSort());
 			if(type == '1'){
 				
 				var record = 'check';
@@ -132,15 +140,28 @@ function CreateBillPayment(request, response){
 				
 				filter.push(new nlobjSearchFilter('mainline', null, 'is', 'T'));
 			}
-            // nlapiLogExecution('debug','RECORD 1234',record)
-			var SearchRecord = nlapiSearchRecord(record,null,filter,column);
-			//nlapiLogExecution('Debug','is search Result',SearchRecord);
+             nlapiLogExecution('audit','RECORD 1234',record)
+			var searchResults = nlapiSearchRecord(record,null,filter,column);
+			nlapiLogExecution('Debug','is search Result',JSON.stringify(SearchRecord));
 			var arrAccount = [];
+			
+			var SearchRecord = searchResults;
+			
+			while(searchResults.length == 1000){
+			  //var columns = searchResults[999].getAllColumns();	
+			  var lastId = searchResults[999].getValue('internalid'); //note the last record retrieved
+			  filter.push(new nlobjSearchFilter('internalidnumber',null,'greaterthan',lastId));
+			 searchResults = nlapiSearchRecord(record,null,filter,column);
+			 SearchRecord = SearchRecord.concat(searchResults);
+				
+			}  
 			
 			if(SearchRecord){
 				
 				//nlapiLogExecution('Debug','SearchRecord action',SearchRecord.length);
 				for(var ss=0;ss<SearchRecord.length;ss++){
+					
+					nlapiLogExecution('emergency','Record ID',SearchRecord[ss].id);
 					
 					entityIds.push(SearchRecord[ss].getValue('entity'));
 				}
@@ -155,18 +176,18 @@ function CreateBillPayment(request, response){
 				entityColumns.push(new nlobjSearchColumn('type'));
 			
 				var searchEntities = nlapiSearchRecord('entity',null,entityFilters,entityColumns);
-				//nlapiLogExecution('debug','Search Entities',JSON.stringify(searchEntities));
+				nlapiLogExecution('debug','Search Entities',JSON.stringify(searchEntities));
 				
 				if(searchEntities){
 					
 					// get all vendors and push it
-					
+					nlapiLogExecution('audit','ENTITY LENGTH',searchEntities.length)
 					for(var fi = 0; fi < searchEntities.length; fi++){
 						
 						var type = searchEntities[fi].getValue('type');
-						//nlapiLogExecution('debug','TYPE',type);
+						nlapiLogExecution('debug','TYPE',type+'@@@'+entity);
 						var vendorid = searchEntities[fi].id;
-						if(type == 'Vendor'){
+						if(type == entity){
 							
 							vendorids.push(vendorid);
 							
@@ -175,26 +196,45 @@ function CreateBillPayment(request, response){
 					}
 					
 					
-					//nlapiLogExecution('debug','Vendor IDS',JSON.stringify(vendorids));
+					nlapiLogExecution('debug','Vendor IDS',JSON.stringify(vendorids));
 					
 					for(var i=0;i<SearchRecord.length;i++)
 					{
 							
 								
-								if(vendorids.indexOf(SearchRecord[i].getValue('entity')) >= 0){
+								if(record == 'check' && vendorids.indexOf(SearchRecord[i].getValue('entity')) >= 0){
 								
-								var currentAccount = SearchRecord[i].getValue('account');
-								if(i == 0){
-									accountId.addSelectOption(SearchRecord[i].getValue('account'),SearchRecord[i].getText('account'));	
-									arrAccount.push(currentAccount);
-								}
-								else{
-									if(arrAccount.indexOf(currentAccount) == -1)
-									{
+									var currentAccount = SearchRecord[i].getValue('account');
+									if(i == 0){
 										accountId.addSelectOption(SearchRecord[i].getValue('account'),SearchRecord[i].getText('account'));	
 										arrAccount.push(currentAccount);
 									}
-								}
+									else{
+										if(arrAccount.indexOf(currentAccount) == -1)
+										{
+											accountId.addSelectOption(SearchRecord[i].getValue('account'),SearchRecord[i].getText('account'));	
+											arrAccount.push(currentAccount);
+										}
+									}
+								
+								
+							}
+
+
+							if(record == 'vendorpayment'){
+								
+									var currentAccount = SearchRecord[i].getValue('account');
+									if(i == 0){
+										accountId.addSelectOption(SearchRecord[i].getValue('account'),SearchRecord[i].getText('account'));	
+										arrAccount.push(currentAccount);
+									}
+									else{
+										if(arrAccount.indexOf(currentAccount) == -1)
+										{
+											accountId.addSelectOption(SearchRecord[i].getValue('account'),SearchRecord[i].getText('account'));	
+											arrAccount.push(currentAccount);
+										}
+									}
 								
 								
 							}
@@ -226,6 +266,7 @@ function CreateBillPayment(request, response){
 			var subsid = request.getParameter('Subs');
 			var type = request.getParameter('type');
 			var Acc = request.getParameter('Account');
+			var entity = request.getParameter('entitytype');
 			//nlapiLogExecution('Debug','Account...',Acc);
 
 			var Date = request.getParameter('Date');
@@ -262,7 +303,15 @@ function CreateBillPayment(request, response){
 			column.push(new nlobjSearchColumn('entity'));
 			column.push(new nlobjSearchColumn('custbody_printcheck'));
 			column.push(new nlobjSearchColumn('memo'));
-			column.push(new nlobjSearchColumn('entityid','vendor'));
+			if(entity == 'Vendor'){
+				
+				column.push(new nlobjSearchColumn('entityid','vendor'));
+
+			}else{
+
+				column.push(new nlobjSearchColumn('internalid','employee'));
+			}
+			
 			column.push(new nlobjSearchColumn('total'));
 			column.push(new nlobjSearchColumn('tranid'));
 			//nlapiLogExecution('Debug','2');
@@ -279,6 +328,7 @@ function CreateBillPayment(request, response){
 			//nlapiLogExecution('Debug','Search length of bill payment rs......',Search.length);
 
 			if(!Search){
+
 				var form1 = nlapiCreateForm(SuiteletPageName,false);
 				form1.setScript('customscript_prg_cs_billpayment');
 				
@@ -323,7 +373,7 @@ function CreateBillPayment(request, response){
 				entityColumns.push(new nlobjSearchColumn('type'));
 			
 				var searchEntities = nlapiSearchRecord('entity',null,entityFilters,entityColumns);
-				//nlapiLogExecution('debug','Search Entities',JSON.stringify(searchEntities));
+				nlapiLogExecution('debug','Search Entities',JSON.stringify(searchEntities));
 				
 				if(searchEntities){
 					
@@ -332,9 +382,9 @@ function CreateBillPayment(request, response){
 					for(var fi = 0; fi < searchEntities.length; fi++){
 						
 						var type = searchEntities[fi].getValue('type');
-						//nlapiLogExecution('debug','TYPE',type);
+						nlapiLogExecution('debug','TYPE',type+'@@'+entity);
 						var vendorid = searchEntities[fi].id;
-						if(type == 'Vendor'){
+						if(type == entity){
 							
 							vendorids.push(vendorid);
 							
@@ -346,8 +396,8 @@ function CreateBillPayment(request, response){
 				}
 					
 					
-				//	nlapiLogExecution('debug','Vendor IDS',JSON.stringify(vendorids));
-					//nlapiLogExecution('debug','Vendor IDS length',vendorids.length);
+					nlapiLogExecution('debug','Vendor IDS',JSON.stringify(vendorids));
+					nlapiLogExecution('debug','Vendor IDS length',vendorids.length);
 				
 				//===================================================================================================//
 				
@@ -398,9 +448,9 @@ function CreateBillPayment(request, response){
 				
 				var totalVendors = Search.length;
 				nlapiLogExecution('debug','Record is check',totalVendors);
-				if(totalVendors > 50){
+				if(totalVendors > 40){
 					
-					totalLength = 50;
+					totalLength = 40;
 					
 				}else{
 					
@@ -415,9 +465,9 @@ function CreateBillPayment(request, response){
 			{
 				
 			//	nlapiLogExecution('debug','Record is Vendor Payment');
-				if(searchLength > 50){
+				if(searchLength > 40){
 					
-					totalLength = 50;
+					totalLength = 40;
 					
 				}else{
 					
@@ -450,7 +500,17 @@ function CreateBillPayment(request, response){
 						
 						
 //						nlapiLogExecution('debug','eeeeeeeeeeeeee',payeeVendorId+'vendorids'+JSON.stringify(vendorids));
-						var vendorCode =Search[i].getValue('entityid','vendor');// nlapiLookupField('vendor',payeeVendorId,'entityid');
+						if(entity == 'Vendor'){
+								var vendorCode = Search[i].getValue('entityid','vendor');
+
+						}else{
+
+
+							var vendorCode = Search[i].getValue('internalid','employee');
+							
+							// nlapiLookupField('vendor',payeeVendorId,'entityid');
+						}
+						
 						nlapiLogExecution('debug','VENDOR CODE',vendorCode);
 						var payeeName = Search[i].getValue('custbody_printcheck');
 						
@@ -528,6 +588,7 @@ function CreateBillPayment(request, response){
 						payeeName = payeeName + spacesPayee;
 						
 						var checkNumberFile = Search[i].getValue('tranid');
+						var checkNoFile = Search[i].getValue('tranid');
 						nlapiLogExecution('audit','checkNumberFilerrrrrrrrrrr',checkNumberFile);
 						nlapiLogExecution('audit','ppppppppppppp',checkNumberFile.length);
 						var countcheckNumberFile = Number(CashVoucherNo) - Number(checkNumberFile.length);
@@ -538,10 +599,18 @@ function CreateBillPayment(request, response){
 						var voucherSpaces = addSpaces(16);
 						var voucherToPrint = prefixVoucher+voucherSpaces+checkNumberFile;
 						//********************************************************************************************************************
-						
+						if(vendorCode && vendorCode.length > 10){
+
+							vendorCode = addSpaces(10);
+
+						}
 						txtBody+='\r\nC'+vendorCode+checkNo+zeros+finalAmount+resultDate+vat+purposeOfCheck+payeeName;
 						txtBody+='\r\n';
-						//txtBody+=voucherToPrint;
+						if(record == 'check'){
+							
+							txtBody+=voucherToPrint;
+						}
+						
 						//nlapiLogExecution('Debug','URL,,,,,  ',URL);
 						/*var searchResultss = nlapiRequestURL(URL,{action: 'ProcessRecord',  recId: recId});
 						*/
@@ -557,8 +626,9 @@ function CreateBillPayment(request, response){
 						 //  nlapiLogExecution('Debug', 'URL 2', url);
 						   
 //						   var stringScript="window.open('"+url+"','_blank','toolbar=yes, location=yes, status=yes, menubar=yes, scrollbars=yes')";
+						if(record != 'check'){
 
-						var a = nlapiRequestURL(URL);
+							var a = nlapiRequestURL(URL);
 						   nlapiLogExecution('Debug', 'a', a);
 						   var b = JSON.parse(a.getBody());
 						   nlapiLogExecution('Debug', 'b', JSON.stringify(b));
@@ -574,18 +644,30 @@ function CreateBillPayment(request, response){
 							nlapiLogExecution('Debug','res result ',res);
 							var spaceresult = addSpaces(res);
 							nlapiLogExecution('Debug','spaceresult ',spaceresult);
-							
-							
-							txtBody+=b[ss].voucherToPrint+b[ss].invoice_Number+b[ss].resultinvoiceDate+b[ss].invoiceAmtzeros+b[ss].invoiceAmountPrint+b[ss].dmcm_Amount+b[ss].invoiceTaxZeros+b[ss].finalTaxPrint+'\r\n';
+							var deductions = b[ss].dmcm_Amount
+							deductions=deductions.replace(/\,/g,''); // 1125, but a string, so convert it to number
+							deductions=parseInt(deductions,10);
+							nlapiLogExecution('audit','DMCM AMOUNT',b[ss].dmcm_Amount);
+							txtBody+=b[ss].voucherToPrint+b[ss].invoice_Number+b[ss].resultinvoiceDate+b[ss].invoiceAmtzeros+b[ss].invoiceAmountPrint+b[ss].dmcmZeros+deductions+b[ss].invoiceTaxZeros+b[ss].finalTaxPrint+'\r\n';
 
 							}
+
+
+						}
+							
+						
 						//dmcm_Amount+b[ss].finalInvoicetax+b[ss].finalInvoicetax+b[ss].invoicezeros+b[ss].finalInvoiceAmount+'\r\n'+spaceresult;
 
 						
 				//	var array.push({'recId':recId,'getSubsidiary':getSubsidiary,'getAccount':getAccount,'getTranDate':getTranDate,'company_id':company_id,'vendorCode':vendorCode,'payeeName':payeeName,'purposeOfCheck':purposeOfCheck,'checkAmount':checkAmount,'checkNo':checkNo});
 					        
 					    	var submit = nlapiSubmitField(record,recId,'tobeprinted','T');
-					    	//nlapiLogExecution('Debug','submit,,,,,  ',submit);
+					    	nlapiLogExecution('Debug','submit,,,,,  ',submit);
+					}else{
+
+
+
+
 					}
 					
 					
@@ -596,17 +678,18 @@ function CreateBillPayment(request, response){
 				}
 				
 				if(company_id.length < 3){
-					newAttachment = nlapiCreateFile('NS'+'C'+checkNumberFile+'.0'+company_id, 'PLAINTEXT',txtBody);
+					newAttachment = nlapiCreateFile('NS'+'C'+checkNoFile+'.0'+company_id, 'PLAINTEXT',txtBody);
 				}
 				else
-					{
-					newAttachment = nlapiCreateFile('NS'+'C'+checkNumberFile+'.'+company_id, 'PLAINTEXT',txtBody);
-					}
+				{
+					newAttachment = nlapiCreateFile('NS'+'C'+checkNoFile+'.'+company_id, 'PLAINTEXT',txtBody);
+				}
 			
 //				nlapiLogExecution('debug','newAttachment',newAttachment);
 				 
 				
 				 newAttachment.setFolder(folderId);
+				 newAttachment.setEncoding('windows-1252');
 				file = nlapiSubmitFile(newAttachment);
 				var append ='&_xd=T';
 				/*var resolve = nlapiResolveURL('RECORD','folder',file);
@@ -627,7 +710,8 @@ function CreateBillPayment(request, response){
 		
 
 				
-			var htmlvar = '';
+				
+				var htmlvar = '';
 
 				htmlvar+='<div  id="msg_status_draft" class="uir-alert-box confirmation session_confirmation_alert" width="100%" role="status" style = "padding-top:0px;">';
 				htmlvar+='<div class="icon confirmation"><img src="/images/icons/messagebox/icon_msgbox_confirmation.png" alt=""></div>';
@@ -636,6 +720,7 @@ function CreateBillPayment(request, response){
 				htmlvar+='</div></div>';
 
 				fldHtmlHeader.setDefaultValue(htmlvar);
+				
 			
 			
 			

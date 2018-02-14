@@ -21,9 +21,14 @@ function() {
 
     		var currentRecordObj = scriptContext.currentRecord;
     		var startDate = currentRecordObj.getValue('custrecord_billstartdate');
-    		var dateObj = new Date(startDate);
-    		var lastdate = new Date(dateObj.getFullYear(), dateObj.getMonth() + 1, 0);
-    		currentRecordObj.setValue('custrecord_billingenddate',lastdate);
+    		if(startDate){
+    			
+    			var dateObj = new Date(startDate);
+        		var lastdate = new Date(dateObj.getFullYear(), dateObj.getMonth() + 1, 0);
+        		currentRecordObj.setValue('custrecord_billingenddate',lastdate);
+    			
+    		}
+    			
     	
 
     }
@@ -51,6 +56,13 @@ function() {
     		currentRecordObj.setValue('custrecord_billingenddate',lastdate);
     	}
     	
+    	
+    	
+    	if(scriptContext.fieldId == 'custrecord_minimumamt'){
+    		
+    		
+    		
+    	}
     	
     	if(scriptContext.fieldId == 'custrecord_rate'){
     		

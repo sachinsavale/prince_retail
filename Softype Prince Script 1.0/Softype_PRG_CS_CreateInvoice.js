@@ -109,7 +109,7 @@ function onClickInvoice(){
 	url += '&action=createInvoice';
 	
 	var response = nlapiRequestURL(url,null,null,'POST');
-	console.log("Response-->"+response);
+	//console.log("Response-->"+response);
 	//alert(response.body);
 	if(response.body){
 		var invoiceid = response.body;

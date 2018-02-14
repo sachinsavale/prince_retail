@@ -18,7 +18,7 @@ function CreateBillPayment(request, response){
 	if(request.getMethod() == "GET")
 	{
 		var record;
-		var vendorCode
+		var vendorCode;
 		var action = request.getParameter('action');
 		//nlapiLogExecution('DEBUG', 'action', action);
 		var subsid = request.getParameter('subsid');
@@ -689,6 +689,7 @@ function CreateBillPayment(request, response){
 				 
 				
 				 newAttachment.setFolder(folderId);
+				 newAttachment.setEncoding('windows-1252');
 				file = nlapiSubmitFile(newAttachment);
 				var append ='&_xd=T';
 				/*var resolve = nlapiResolveURL('RECORD','folder',file);
