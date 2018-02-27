@@ -29,6 +29,7 @@ function(record,search) {
     	
     	var currentRecordObj = scriptContext.newRecord;
     	var paymentId = currentRecordObj.id;
+    	
     	var invoiceId = '';
     	var linecount = currentRecordObj.getLineCount({sublistId:'apply'});
     	log.debug('Line Count',linecount);
@@ -164,10 +165,16 @@ function(record,search) {
     				 value:invoiceId
     			 });
     			 
-    			 createStoreObj.setValue({
-    				 fieldId:'custrecord_payment_number',
-    				 value:paymentId
-    			 });
+    			 if(paymentId){
+    				 
+    				 createStoreObj.setValue({
+        				 fieldId:'custrecord_payment_number',
+        				 value:paymentId
+        			 });
+    				 
+    				 
+    			 }
+    			 
     			 
     			 createStoreObj.setValue({
     				 fieldId:'custrecord_new_record',

@@ -174,10 +174,7 @@ function(record,format,runtime,error) {
     			
     			var counter = i;
         	//	var year = now.getFullYear() + counter;
-    			if(monthCount == LAST_MONTH){
-    				
-    					flag = 1;
-    			}
+    			
         		if(INCREMENT && monthCount > LAST_MONTH ){
     				
     				var amountPercent = Number((INCREMENT/100)*Number(billingAmount));
@@ -191,18 +188,25 @@ function(record,format,runtime,error) {
     				
     			}
         		
-        		if(INCREMENT && monthCount > LAST_MONTH){
+        		if(INCREMENT || monthCount > LAST_MONTH){
     				
     				monthCount = 1;
     				
     			}
         		
 
-        		if(INCREMENT && i > 12){
+        		if(INCREMENT || i > 12){
     				
     				LAST_MONTH = 12;
     				
     			}
+        		
+        		if(monthCount == LAST_MONTH){
+        			
+        			log.audit('CHANGE THE FLAG VALUE');
+    				
+					flag = 1;
+        		}
         		
         		var createRecord = record.create({type:'customrecord_contractbillingschedule',isDynamic: true});
         		createRecord.setValue('custrecord_billingreference',billingRefCount);
@@ -247,13 +251,17 @@ function(record,format,runtime,error) {
         		
         		if(flag == 1){
         			
+        			log.audit('CREATE RECORD FOR FLAG')
         			var createRecord = record.create({type:'customrecord_contractbillingschedule',isDynamic: true});
             		createRecord.setValue('custrecord_billingreference',billingRefCount);
             		createRecord.setValue('custrecord_contractref',parentBillingRef);
             		createRecord.setValue('custrecord_billingoccurrence',billingOccurence);
-            		
-            		createRecord.setValue('custrecord_billstartdate',nextDate);
-            		createRecord.setValue('custrecord_billingenddate',previousDate);
+            		var sDate = previousDate;
+            		sDate = sDate.setDate(sDate.getDate()+1);
+            		log.audit('DATE SDATE----->',previousDate);
+            		var lastdateOfTheMonth = new Date(previousDate.getFullYear(), previousDate.getMonth() + 1, 0);
+            		createRecord.setValue('custrecord_billstartdate',previousDate);
+            		createRecord.setValue('custrecord_billingenddate',lastdateOfTheMonth);
             			
             			
             		

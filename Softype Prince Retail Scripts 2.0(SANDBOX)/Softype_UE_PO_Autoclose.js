@@ -3,7 +3,7 @@
  * @NScriptType UserEventScript
  * @NModuleScope SameAccount
  */
-define(["N/record","N/log"], function (r) {
+define(["N/record","N/log",'N/error','N/search'], function (r,log,error,search) {
    
     /**
      * Function definition to be triggered before record is loaded.
@@ -28,6 +28,38 @@ define(["N/record","N/log"], function (r) {
      * @Since 2015.2
      */
     function beforeSubmit(scriptContext) {
+    	
+    	var currentRecordObj = scriptContext.newRecord;
+    	var oldRecordObj = scriptContext.oldRecord;
+    	 var getPO_Id = currentRecordObj.getValue('createdfrom');
+    	  var statusObj = search.lookupFields({
+    		  type:'purchaseorder',
+    		  id:getPO_Id,
+    		  columns:['status']
+    	  });
+    	  
+    	  log.debug('status',statusObj.status[0].value);
+    	 
+    	 if(scriptContext.type == 'edit'){
+    		 
+    		 if(statusObj.orderstatus[0].value == 'PurchOrd:H'){
+    			 
+    			 var errorObj = error.create({
+ 					name: 'Notice',
+					message: 'Purchase Order is Closed for this Item Receipt.',
+					notifyOff: true
+				});
+    			 
+    			 throw errorObj.message;
+    				
+    		 }
+    		 
+    		 
+    		 
+    	 }
+    	
+    	
+    	
 
     }
 

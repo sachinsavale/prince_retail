@@ -306,6 +306,7 @@ function CreateBillPayment(request, response){
 			if(entity == 'Vendor'){
 				
 				column.push(new nlobjSearchColumn('entityid','vendor'));
+				column.push(new nlobjSearchColumn('internalid','vendor'));
 
 			}else{
 
@@ -502,6 +503,10 @@ function CreateBillPayment(request, response){
 //						nlapiLogExecution('debug','eeeeeeeeeeeeee',payeeVendorId+'vendorids'+JSON.stringify(vendorids));
 						if(entity == 'Vendor'){
 								var vendorCode = Search[i].getValue('entityid','vendor');
+								if(isNaN(vendorCode)){
+									
+									var vendorCode = Search[i].getValue('internalid','vendor');
+								}
 
 						}else{
 

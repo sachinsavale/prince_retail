@@ -23,12 +23,15 @@ function postRESTlet(dataIn) {
 	
 	
 	nlapiLogExecution('debug','Start');
-	var printFolder  = 244;
+	var printFolder  = 407;
 	var processed = 407
 	//var processedItemFolder = 286;
 	var filesData = [];
 	var searchFilters = new Array();
 	searchFilters.push(new nlobjSearchFilter('folder',null,'is',printFolder));
+	searchFilters.push(new nlobjSearchFilter('name','systemnotes','anyof',[19]));
+	searchFilters.push(new nlobjSearchFilter('context','systemnotes','anyof',['UIF']));
+	
 	var totalFiles = nlapiSearchRecord('file',null,searchFilters, null); //10units
 	
 	if(totalFiles)
@@ -58,11 +61,11 @@ function postRESTlet(dataIn) {
 				for(var t=0; t<filesData.length; t++){
 					
 					var fileObj = nlapiLoadFile(filesData[t].fileid);
-					moveFile(fileObj,processed);
+				//	moveFile(fileObj,processed);
 					
 					
 				}
-				
+				return totalFiles.length;
 				return filesData;
 			}
 			
@@ -73,11 +76,11 @@ function postRESTlet(dataIn) {
 				for(var t1=0; t1<filesData.length; t1++){
 					
 					var fileObj = nlapiLoadFile(filesData[t1].fileid);
-					moveFile(fileObj,processed);
+					//moveFile(fileObj,processed);
 					
 					
 				}
-				
+				return totalFiles.length;
 				return filesData;
 				
 				

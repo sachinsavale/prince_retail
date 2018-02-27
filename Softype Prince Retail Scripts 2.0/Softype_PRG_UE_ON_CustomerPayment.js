@@ -164,10 +164,17 @@ function(record,search) {
     				 value:invoiceId
     			 });
     			 
-    			 createStoreObj.setValue({
-    				 fieldId:'custrecord_payment_number',
-    				 value:paymentId
-    			 });
+    			 if(paymentId){
+    				 
+    				 
+    				 createStoreObj.setValue({
+        				 fieldId:'custrecord_payment_number',
+        				 value:paymentId
+        			 });
+    				 
+    				 
+    			 }
+    			
     			 
     			 createStoreObj.setValue({
     				 fieldId:'custrecord_new_record',

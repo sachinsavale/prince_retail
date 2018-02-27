@@ -48,14 +48,14 @@ function createCheck(type)
 		nlapiLogExecution('Debug','category=>',category);
 			
 		var check = nlapiCreateRecord('check',{'recordmode':'dynamic','entity':entity});			
-		
+		check.setFieldValue('customform',customform);
 		//check.setFieldValue('entity',entity);	
 		check.setFieldValue('account',account);		
 		//check.setFieldValue('subsidiary',subsidiary);			
 		//check.setFieldValue('custbody_advancetype',employee_advance);//hard coded advance type field in Check Record
-		check.setFieldValue('customform',customform);	
+			
 		check.setFieldValue('location',location1);
-		check.setFieldValue('custbody_prg_check_cash_adv',RecId);
+		
 		check.setFieldValue('custbody_printcheck',printOnCheck);
 		
 		check.selectNewLineItem('expense');
@@ -63,8 +63,8 @@ function createCheck(type)
 		check.setCurrentLineItemValue('expense','amount',amount);//hard coded amount for testing
 		check.setCurrentLineItemValue('expense','taxcode',5);//hard coded taxcode for testing
 		check.commitLineItem('expense');
-		
-		var Id = nlapiSubmitRecord(check);
+		check.setFieldValue('custbody_prg_check_cash_adv',RecId);
+		var Id = nlapiSubmitRecord(check,true);
 		nlapiLogExecution('Debug','Id=>',Id);
 		if(Id)
 		{
